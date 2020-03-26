@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "outFile" : "../js/meet_menu.js",
+        "target": "ES6"
+            
+        
+        
+    },
+    "include": [
+        "*"
+    ],
+    "file": [
+        "d:/dev/js_reference/babylon.d.ts" ,
+        "d:/dev/js_reference/babylon.gui.d.ts" 
+    ],
+    "types": [
+        "babylonjs",
+        "babylonguijs",
+        "anotherAwesomeDependency"
+    ]
+}

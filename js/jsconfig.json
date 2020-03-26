@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "checkJs" : true,
+        "target": "es6"
+        
+    },
+    "types": [
+        "babylonjs",
+        "babylonguijs",
+        "anotherAwesomeDependency"
+    ]
+}
