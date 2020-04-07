@@ -1,6 +1,5 @@
 /// <reference path="./IButton.ts" />
-/// <reference path="./IActionButton.ts" />
-class ActionButtonText extends IButton implements IActionButton
+class ActionButtonText extends IButton 
 {
     // interface redéfinition
     eventOnActiveHandler: () => void;

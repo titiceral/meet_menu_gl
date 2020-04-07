@@ -1,3 +1,5 @@
+// drag and drop 
+// https://www.babylonjs-playground.com/#CNT1E0#1
 abstract class IMenu extends IButtonImg
 {
     // vector non normalisé indiquant comment afficher les sous menu

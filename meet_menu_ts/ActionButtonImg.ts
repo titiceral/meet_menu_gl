@@ -1,17 +1,21 @@
 /// <reference path="./IButtonImg.ts" />
-/// <reference path="./IActionButton.ts" />
 
 
-class ActionButtonImg extends IButtonImg  implements IActionButton
+
+class ActionButtonImg extends IButtonImg  //implements IActionButton
 {
-    eventOnActiveHandler: () => void;
-    eventOnDesactivateHandler: () => void;
+
+
+    actionSenders : IActionSender[];
     /**
      *
      */
-    constructor(anchorMesh  : any,  strName : string, strTexturePath : string ) {
+    constructor(anchorMesh  : any,  strName : string, strTexturePath : string,
+        actionbtns : IActionSender[] ) {
         super(anchorMesh, strName, strTexturePath);
-        
+        this.actionSenders = actionbtns;
+
+        this.guiButton.AddEventOnClick(this.OnClicked, this);
     }
 
     OnProgress(progressPercentage: number): void {
@@ -20,10 +24,16 @@ class ActionButtonImg extends IButtonImg  implements IActionButton
     OnClicked(): void {
         if( this.isClicked)
         {
-            this.eventOnActiveHandler();
+            this.actionSenders.forEach(actionSender => 
+                {
+                    actionSender.eventOnActiveHandler();
+                });
         }
         else{
-            this.eventOnDesactivateHandler();
+            this.actionSenders.forEach(actionSender => 
+                {
+                    actionSender.eventOnDesactivateHandler();
+                });
 
         }
     }

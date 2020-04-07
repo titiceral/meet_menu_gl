@@ -1,55 +1,81 @@
 
-//@ts-check
-var thisScene ;
-Scene = function(renderer, onBabylonFileLoaded ) {
-    // Appel des variables nécéssaires
-    this.renderer = renderer;
-    this.scene = renderer.scene;
-    var _this = this;
-    thisScene = this;
-    thisScene.onBabylonFileLoaded = onBabylonFileLoaded;
-    this._loadBabylonFile("assets/3D/", "lampe2.babylon",onBabylonFileLoaded) ;
+/// <reference path="../constantes.ts" />
+/// <reference path="d:/dev/js_reference/babylon.d.ts" />
+/// <reference path="d:/dev/js_reference/babylon.gui.d.ts" />
+class MeetScene
+{
+    objectLoaded : ISceneObjectLoaded;
+
+    onFileLoaded : () => void;
+
+    scene : BABYLON.Scene;
 
 
-   
-    // Création de notre lumière principale
-    //var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), this.scene);
+    renderer : any;
 
-    // Création de la carte d'environnement
-    //var hdrTexture = new BABYLON.CubeTexture("assets/textures/SpecularHDR.dds", this.scene);
-    //this.scene.createDefaultSkybox(hdrTexture, true, 1000);
-    this._loadManualSkybox("assets/textures/skybox/skybox");
 
-    // brouillard
-    //FOG this.scene.fogMode = BABYLON.Scene.FOGMODE_EXP2;
-    //FOG this.scene.fogDensity = 0.001;
-    //FOG this.scene.fogColor = new BABYLON.Color3(0.9, 0.9, 0.85);
+    /// 
+    _ambientLightCustom : ActionAmbientLight ;
+    _ground : BABYLON.Mesh;
+    _groundCustomisable : CustomisableMaterialTexture;
 
-    // Ajoutons un sol pour situer la sphere dans l'espace
-    this._loadGround();
-    this._ambientLight =  this._loadAmbientLight();
-   // SHADOW_GEN  ground.receiveShadows = true;
+    ///sphere : any;
 
-   
-};
-function typeOf(obj) {
-    return {}.toString.call(obj).split(' ')[1].slice(0, -1).toLowerCase();
-  }
-Scene.prototype = {
-    // Prototype d'initialisation de la scène
-    _initScene : function(engine) {
+    /**
+     *
+     */
+    constructor(renderer : any, onBabylonFileLoaded : () => void ) {
+        // Appel des variables nécéssaires
+        this.renderer = renderer;
+        this.scene = renderer.scene;
+      //  var _this = this;
+     //   thisScene = this;
+        this.objectLoaded = new SOLVeilleuse(this);
+
+        this.onFileLoaded = onBabylonFileLoaded;
+     //   this._loadBabylonFile("assets/3D/", "lampe2.babylon",onBabylonFileLoaded) ;
+        //EST TMP
+      //  this.objectLoaded = new SOLSphere();
+        this.objectLoaded.LoadObject( onBabylonFileLoaded, this.renderer);
+
+ 
+    
+    
+    
+       
+        // Création de notre lumière principale
+        //var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), this.scene);
+    
+        // Création de la carte d'environnement
+        //var hdrTexture = new BABYLON.CubeTexture("assets/textures/SpecularHDR.dds", this.scene);
+        //this.scene.createDefaultSkybox(hdrTexture, true, 1000);
+        this._loadManualSkybox("assets/textures/skybox/skybox");
+    
+        // brouillard
+        //FOG this.scene.fogMode = BABYLON.Scene.FOGMODE_EXP2;
+        //FOG this.scene.fogDensity = 0.001;
+        //FOG this.scene.fogColor = new BABYLON.Color3(0.9, 0.9, 0.85);
+    
+        // Ajoutons un sol pour situer la sphere dans l'espace
+        this._loadGround();
+        this._loadAmbientLight();
+       // SHADOW_GEN  ground.receiveShadows = true;
+        
+    }
+       // Prototype d'initialisation de la scène
+    _initScene(engine : any) {
         var scene = new BABYLON.Scene(engine);
         scene.clearColor=new BABYLON.Color4(0,0,0,1);
         return scene;
-    },
+    }
 
-    _loadBabylonFileOnSucces : function(newMeshes)
+    /*_loadBabylonFileOnSucces(newMeshes  : any)
     {
         
         //var newMeshes = meshes;
             // SHADOW_GEN    var ampouleLight = new BABYLON.PointLight("ampouleLight", new BABYLON.Vector3(0,0,0), this.scene);
             var tissuLight = new BABYLON.SpotLight("tissuLight", new BABYLON.Vector3(0,0,0),new BABYLON.Vector3(0,0,-1),Math.PI *0.95  ,0.04, this.scene);
-            thisScene._mainLight = tissuLight;
+            this.objectLoaded._mainLight = new GLBabylonLight(tissuLight);
                
             // SHADOW_GEN    this.shadowGenerator = new BABYLON.ShadowGenerator(1024, ampouleLight);
    
@@ -64,7 +90,7 @@ Scene.prototype = {
                     {
                       
                   //     console.log( mesh.material.subMaterials() );
-                        thisScene._lightMesh = mesh;
+                 //ETS TMP       _lightMesh = mesh;
                   // SHADOW_GEN      ampouleLight.position = mesh.position.clone();
                  // SHADOW_GEN       ampouleLight.position.x = 0;
                   // SHADOW_GEN      ampouleLight.position.y= 8.5;
@@ -96,7 +122,7 @@ Scene.prototype = {
                     //}
                     if(mesh.name == "tissu")
                     {
-                        thisScene._tissu = mesh;
+                      // ETS TMP  _tissu = mesh;
                      //  mesh.material.alpha = 0.5;
                         mesh.material.opacityTexture = new BABYLON.Texture("./assets/3D/tissuAlpha.png",this.scene);
                         mesh.material.opacityTexture.getAlphaFromRGB = true;
@@ -112,137 +138,80 @@ Scene.prototype = {
                 }); // rof each meshes
    
                 // all loaded
-                thisScene.onBabylonFileLoaded(thisScene._tissu);
+                this.onFileLoaded();//thisScene._tissu);
            
-    },
-    _loadBabylonFile : function(modelFolderPath, modelFileName, onBabylonFileLoaded )
+    }*/
+
+   /* _loadBabylonFile(modelFolderPath : any , modelFileName : any, onBabylonFileLoaded  : any )
     {
         BABYLON.SceneLoader.ImportMesh("", modelFolderPath, modelFileName, this.scene, this._loadBabylonFileOnSucces);
 
-    },
+    }*/
 
 
     // load skybox from file of 6 cube textures
-    _loadManualSkybox : function (folderPath)
+    _loadManualSkybox (folderPath : string) : void
     {
-            var skybox = BABYLON.Mesh.CreateBox("skyBox", 1000.0, this.scene);
-            var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
-            skyboxMaterial.backFaceCulling = false;
-         
-            skybox.material = skyboxMaterial;
-            skybox.infiniteDistance = true;
-            skyboxMaterial.disableLighting = true
+        var skybox = BABYLON.Mesh.CreateBox("skyBox", 1000.0, this.scene);
+        var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
+        skyboxMaterial.backFaceCulling = false;
+        
+        skybox.material = skyboxMaterial;
+        skybox.infiniteDistance = true;
+        skyboxMaterial.disableLighting = true
 
-            skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(folderPath, this.scene);
-            skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
-            skybox.renderingGroupId = 0;
-    },
+        skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(folderPath, this.scene);
+        skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+        skybox.renderingGroupId = 0;
+    }
 
-    // load ground 
-    _loadGround : function()
+    // load ground  
+    _loadGround() : void
     {
         var materialGround = new BABYLON.StandardMaterial("groundTexture", this.scene);
         materialGround.diffuseTexture = new BABYLON.Texture("./assets/images/brick.jpg", this.scene);
-        materialGround.diffuseTexture.uScale = 4.0;
-        materialGround.diffuseTexture.vScale = 4.0;
+        (materialGround.diffuseTexture as BABYLON.Texture).uScale = 4.0;
+        (materialGround.diffuseTexture as BABYLON.Texture).vScale = 4.0;
+
         materialGround.opacityTexture = new BABYLON.Texture("./assets/textures/groundAlpha.png",this.scene);
-        materialGround.getAlphaFromRGB = true;
+      //  materialGround.opacityTexture.getAlphaFromRGB = true;
+        materialGround.specularColor = new BABYLON.Color3(0.01,0.01,0.01);
          // Ajoutons un sol pour situer la sphere dans l'espace
         var ground = BABYLON.Mesh.CreateGround("ground1", 400, 400, 2, this.scene);
         ground.scaling = new BABYLON.Vector3(1,1,1);
     
         ground.material = materialGround;
-       
 
-    },
-    _loadAmbientLight : function()
+        this._ground = ground;
+        // set customizable ground 
+        this._groundCustomisable = new CustomisableMaterialTexture(new Set<GLMaterial>().add( new GLBabylonMaterial(materialGround)));
+        this._groundCustomisable._defaultKey = "Brique";
+        this._groundCustomisable._allowedTexture.set("Brique", new AllowedTexture("./assets/images/brick.jpg",4,4))
+        this._groundCustomisable._allowedTexture.set("Sable", new AllowedTexture("./assets/textures/sable.jpg",2,2))
+        this._groundCustomisable._allowedTexture.set("Bois", new AllowedTexture("./assets/3D/AT_sayo_wood_DIFF.jpg",6,4))
+    }
+    _loadAmbientLight() : void
     {
-        var ambientLight =  new BABYLON.HemisphericLight("ambientLight", new BABYLON.Vector3(0,1,0),this.scene);
+        var ambientLight =  new BABYLON.HemisphericLight("ambientLight", new BABYLON.Vector3(100,100,0),this.scene);
         ambientLight.diffuse = new BABYLON.Color3(1,1,1);
-        ambientLight.specular = new BABYLON.Color3(0.001,0.001,0.001);
+      //ETS TMP  ambientLight.specular = new BABYLON.Color3(0.001,0.001,0.001);
+        ambientLight.specular = new BABYLON.Color3(1,1,1);
         
         ambientLight.intensityMode = BABYLON.Light.INTENSITYMODE_LUMINOUSPOWER;
         ambientLight.intensity = MEET_SKY_INTENSITY;
  
 
-        return ambientLight;
-    },
-    _initialiseSunToMoonAmbient : function()
-    {
-        // amibiante light -> passe du soleil de midi vers la lumiere de la lune avec un couché de soleil
-        var animationSunToMoon = new BABYLON.Animation("animationSunToMoon", "diffuse", MEET_ANIMATION_SPEED,
-        BABYLON.Animation.ANIMATIONTYPE_COLOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-        var keysSunToMoon = [];
-        keysSunToMoon.push({
-            frame: 0,
-            value: new BABYLON.Color3(1,1,1)
-        });
+        this._ambientLightCustom = new ActionAmbientLight(ambientLight, this);
+
+
+
+    }
+
    
-        keysSunToMoon.push({
-            frame: 50,
-            value: new BABYLON.Color3(0.8,0.8,0.8)
-        });
-        var intensity = 0.5;
-       
-       keysSunToMoon.push({
-        frame: 60,
-        value: new BABYLON.Color3(201.0/255.0 * intensity,201.0/255.0 * intensity,201.0/255.0 * intensity)
-
-        });
-        intensity = 0.2;
-       keysSunToMoon.push({
-            frame: 100,
-            value: new BABYLON.Color3(201.0/255.0 * intensity,201.0/255.0 * intensity,201.0/255.0 * intensity)
-
-        });
-        animationSunToMoon.setKeys(keysSunToMoon);
-        this._ambientLight.animations = [];
-        this._ambientLight.animations.push( animationSunToMoon);
-        this.scene.beginAnimation(this._ambientLight, 0, 0,true);
-
- 
-    },
-    _initialiseMoonToSunAmbient : function()
-    {
-        // amibiante light -> passe du soleil de midi vers la lumiere de la lune avec un couché de soleil
-        var animationSunToMoon = new BABYLON.Animation("animationSunToMoon", "diffuse", MEET_ANIMATION_SPEED,
-        BABYLON.Animation.ANIMATIONTYPE_COLOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
-        var keysSunToMoon = [];
-        var intensity = 0.2;
-        keysSunToMoon.push({
-            frame: 0,
-            value: new BABYLON.Color3(201.0/255.0 * intensity,201.0/255.0 * intensity,201.0/255.0 * intensity)
-        });
-        intensity = 0.5;
-        keysSunToMoon.push({
-            frame: 50,
-            value: new BABYLON.Color3(201.0/255.0 * intensity,201.0/255.0 * intensity,201.0/255.0 * intensity)
-        });
-      
-       
-       keysSunToMoon.push({
-        frame: 60,
-        value: new BABYLON.Color3(0.8,0.8,0.8)
-
-        });
-        
-       keysSunToMoon.push({
-            frame: 100,
-            value: new BABYLON.Color3(1,1,1)
-
-        });
-        animationSunToMoon.setKeys(keysSunToMoon);
-        this._ambientLight.animations = [];
-        this._ambientLight.animations.push( animationSunToMoon);
-       // this.scene.beginAnimation(this._ambientLight, 0, 0,true);
-
- 
-    },
-   
-    _initialiseSunToMoonLights : function()
+    _initialiseSunToMoonLights() : void
     {
         // intensité de la veilleuse -> allume la veilleuse
-        var animationSunToMoonLight = new BABYLON.Animation("animationSunToMoonLight", "intensity", MEET_ANIMATION_SPEED,
+       /* var animationSunToMoonLight = new BABYLON.Animation("animationSunToMoonLight", "intensity", MEET_ANIMATION_SPEED,
         BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
 
         var keysSunToMoonLight = [];
@@ -353,11 +322,11 @@ Scene.prototype = {
 
         this.scene.beginAnimation(this._tissu.material, 0, 0,true);
         this.scene.beginAnimation(this._lightMesh.material.subMaterials[0], 0, 0,true);
-        this.scene.beginAnimation(this._mainLight, 0, 0,true);
-    },
-    _initialiseMoonToSunLights : function()
+        this.scene.beginAnimation(this._mainLight, 0, 0,true);*/
+    }
+    _initialiseMoonToSunLights() : void
     {
-        // intensité de la veilleuse -> allume la veilleuse
+    /*    // intensité de la veilleuse -> allume la veilleuse
         var animationMoonToSunLight = new BABYLON.Animation("animationMoonToSunLight", "intensity", MEET_ANIMATION_SPEED,
         BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
 
@@ -474,6 +443,6 @@ Scene.prototype = {
 
        this.scene.beginAnimation(this._tissu.material, 0, 0,true);
         this.scene.beginAnimation(this._lightMesh.material.subMaterials[0], 0, 0,true);
-        this.scene.beginAnimation(this._mainLight, 0, 0,true);
+        this.scene.beginAnimation(this._mainLight, 0, 0,true);*/
     }
-};
+}

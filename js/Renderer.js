@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 var RENDERER ;
 Renderer = function(canvasId) {
+    RENDERER = this;
     // Canvas et engine défini ici
     var canvas = document.getElementById(canvasId);
     var engine = new BABYLON.Engine(canvas, true);
@@ -15,10 +16,13 @@ Renderer = function(canvasId) {
     _this._configurator = null;
     // On initie la scène avec une fonction associé à l'objet Game
     this.scene = this._initScene(engine);
+   
+   
     var _player = new Player(_this, canvas);
-    this._arena = new Scene(_this, this._onSceneLoaded);
-    
-    RENDERER = this;
+    this._arena = new MeetScene(_this, this._onSceneLoaded);
+   
+   //  this._onSceneLoaded(null);
+
 
     
 
@@ -52,16 +56,19 @@ Renderer.prototype = {
         scene.clearColor=new BABYLON.Color4(0,0,0,1);
         return scene;
     },
-    _onSceneLoaded : function(mainMesh)
+    _onSceneLoaded : function( sender)
     {
+      
         console.log("arena" + RENDERER._arena);
         RENDERER._configurator = new Configurator( RENDERER._arena);
-        RENDERER._gui = new Gui(mainMesh, RENDERER.scene, RENDERER._configurator);
+        
+        RENDERER._gui = new Gui( RENDERER.scene, RENDERER._configurator);
         RENDERER._configurator._gui = RENDERER._gui;
 
+        ConfigurationManager.instance().ApplyDefaults();
         // condition de jours
-        RENDERER._arena._initialiseSunToMoonAmbient();
-        RENDERER._arena._initialiseSunToMoonLights();
+     //ETS TMP   RENDERER._arena._initialiseSunToMoonAmbient();
+        //ETS TMP RENDERER._arena._initialiseSunToMoonLights();
       
 
 

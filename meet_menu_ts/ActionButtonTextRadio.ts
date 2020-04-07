@@ -1,7 +1,7 @@
 /// <reference path="./IRadioBtn.ts" />
-/// <reference path="./IActionButton.ts" />
 
-class ActionButtonTextRadio extends IButton implements IActionButton, IRadioBtn
+
+class ActionButtonTextRadio extends IButton implements  IRadioBtn
 {
     //override
     get isClicked(): boolean
@@ -24,19 +24,18 @@ class ActionButtonTextRadio extends IButton implements IActionButton, IRadioBtn
         throw new Error("Method not implemented.");
     }
     radioBtnLinker : RadioBtnLinker;
-        // interface redéfinition
-     eventOnActiveHandler: () => void;
-     eventOnDesactivateHandler: () => void;
+    
     /**
      *
      */
     constructor(anchorMesh : any, strName : string, strLabel :string , strGroup : string,
-         radioBtnLinkerIn : RadioBtnLinker, isChecked : boolean = false)
+         radioBtnLinkerIn : RadioBtnLinker, configurator : ICustomisable ,isChecked : boolean = false)
     {
         super(anchorMesh);
 
        this.guiButton = GuiFactoryManager.Instance().
-                            CreateGuiRadioButton(strName, strLabel,strGroup, isChecked);
+                            CreateGuiRadioButton(strName, strLabel,strGroup,
+                                 isChecked, configurator);
        
                            
         this.radioBtnLinker = radioBtnLinkerIn;

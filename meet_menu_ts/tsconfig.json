@@ -7,7 +7,12 @@
         
     },
     "include": [
-        "*"
+        "*", "GL/ColorRGB.ts", "GL/ColorRGBBabylon.ts", "GL/IGLMaterial.ts", "GL/IGLLight.ts", "GL/GLMaterialBabylon.ts", "GL/GLBabylonLight.ts", "Configurator/AllowedColor.ts"
+        , "Configurator/CustomisableMaterial.ts"
+        , "Configurator/*"
+        , "Scene/*"
+        , "Tools/*"
+        , "GL/*"
     ],
     "file": [
         "d:/dev/js_reference/babylon.d.ts" ,

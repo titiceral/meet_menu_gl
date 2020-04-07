@@ -1,3 +1,5 @@
+/// <reference path="Configurator/ICustomisable.ts" />
+
 interface IGuiFactory
 {
     // créé un bouton sous forme de texte
@@ -7,7 +9,8 @@ interface IGuiFactory
     CreateGuiImageButton(strLabel : string, texturePath : string): IGuiButton;
 
     // créé un radio button
-    CreateGuiRadioButton(strName : string, strLabel : string, strgroup : string, isChecked : boolean) : IGuiButton;
+    CreateGuiRadioButton(strName : string, strLabel : string, strgroup : string, isChecked : boolean, 
+        configurator : ICustomisable) : IGuiButton;
 
     // Créé le panneau recevant les boutons
     GetCenterMenu(scene : any) : IGuiSceen;
