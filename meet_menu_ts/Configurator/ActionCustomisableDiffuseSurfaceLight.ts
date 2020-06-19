@@ -7,10 +7,12 @@
 
 class ActionCustomisableDiffuseSurfaceLight extends IInitialisable implements IActionSender , IGLLight, ICustomisable
 {
+    eventOnActiveHandlerEnd: (sender : any) => void;
+    eventOnActiveHandlerEndSender : any;
     lightIntensity: number; // useless
     lightColor: ColorRGB;// useless
    
-    _allowedProperties : Map<string, AllowedDiffuseSurfaceProperty>;
+    private _allowedProperties : Map<string, AllowedDiffuseSurfaceProperty>;
     _defaultKey : string;
 
 
@@ -20,27 +22,46 @@ class ActionCustomisableDiffuseSurfaceLight extends IInitialisable implements IA
     _surfaceLightMaterial : GLMaterial; // BABYLON.Material; // material de l'ampoule : pour gérer l'émission
     _surfaceLight : GLLight; // 
 
+    set AllowedProperties(value : Map<string, AllowedDiffuseSurfaceProperty>)
+    {
+        this._allowedProperties = value;
+        this._allowedProperties.forEach( (allowedPropertie) => 
+        {
+            allowedPropertie._diffuserProperties.PreloadTextures();
+
+        });
+
+    }
     constructor(surfaceLight :  BABYLON.Light
         ,surfaceDiffuserMaterial : BABYLON.Material
         ,surfaceLightMaterial : BABYLON.Material
-        ,private _scene : MeetScene) {
+        ,private _scene : MeetScene
+       ) {
         super();
         this._surfaceLight = new GLBabylonLight(surfaceLight);
         this._surfaceDiffuserMaterial = new GLBabylonMaterialDiffuser(surfaceDiffuserMaterial as BABYLON.StandardMaterial);
         this._surfaceLightMaterial = new GLBabylonMaterial(surfaceLightMaterial as BABYLON.StandardMaterial);
         this._isNightMode = false;
+     
+
 
         this._allowedProperties = new Map<string, AllowedDiffuseSurfaceProperty>();
         
         
         
     }
+    InitiliseCallback(  eventOnActiveHandlerEndIn : (sender : any) => void
+    ,sender : any)
+    {
+        this.eventOnActiveHandlerEnd = eventOnActiveHandlerEndIn;
+        this.eventOnActiveHandlerEndSender = sender;
+    }
     // inherited
     ApplyDefault(): void {
 
         this._setCustomisable(this._defaultKey);
 
-        this._AnimatedSunToMoonLights(0) ;
+        this._AnimatedSunToMoonLights(0, 0) ;
         
 
     }
@@ -48,6 +69,12 @@ class ActionCustomisableDiffuseSurfaceLight extends IInitialisable implements IA
         let buttonName = (tests[1].target as BABYLON.GUI.Button).name;
 
         this._setCustomisable(buttonName);
+
+        if(this._isNightMode )
+        {
+            this._AnimatedSunToMoonLights(100, 100);
+        }
+        
     }
 
     _setCustomisable(strKey : string) : void
@@ -61,6 +88,9 @@ class ActionCustomisableDiffuseSurfaceLight extends IInitialisable implements IA
                  selectedProperties._diffuserProperties.uScaleTexture, selectedProperties._diffuserProperties.vScaleTexture);
             this._surfaceDiffuserMaterial.SetEmissiveTexture(selectedProperties._diffuserProperties.emissiveTexture,
                 selectedProperties._diffuserProperties.uScaleTexture, selectedProperties._diffuserProperties.vScaleTexture);
+            this._surfaceDiffuserMaterial.SetOpacityTexture(selectedProperties._diffuserProperties.opacityTexture,
+                    selectedProperties._diffuserProperties.uScaleTexture, selectedProperties._diffuserProperties.vScaleTexture);
+           
             this._surfaceDiffuserMaterial.ApplyColor();
 
             this._surfaceLightMaterial.emissive = selectedProperties._surfaceLightColor;
@@ -96,7 +126,7 @@ class ActionCustomisableDiffuseSurfaceLight extends IInitialisable implements IA
        this.ActionHandler();
     }
 
-    _AnimatedSunToMoonLights(maxFrame : number = 100) : void
+    _AnimatedSunToMoonLights(minFrame = 0, maxFrame : number = 100) : void
     {
         // intensité de la veilleuse -> allume la veilleuse
         var animationSunToMoonLight = new BABYLON.Animation("animationSunToMoonLight", "intensity", MEET_ANIMATION_SPEED,
@@ -180,6 +210,62 @@ class ActionCustomisableDiffuseSurfaceLight extends IInitialisable implements IA
         
         (this._surfaceDiffuserMaterial as GLBabylonMaterialDiffuser).glmaterial.animations.push( animSunToMoonTissuTransparency);
 
+                // hack : clamp texture emissive pour ne pas l'afficher tant que la lampe n'est pas allumée
+        if ( (this._surfaceDiffuserMaterial as GLBabylonMaterialDiffuser).glmaterial.emissiveTexture  != null )
+        {
+        var animEmissivetextureVOffset = new BABYLON.Animation("animEmissivetextureVOffset", "vOffset", MEET_ANIMATION_SPEED,
+        BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+        var animEmissivetextureUOffset = new BABYLON.Animation("animEmissivetextureUOffset", "uOffset", MEET_ANIMATION_SPEED,
+        BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+
+        var keymissivetextureClampU = [];
+
+        keymissivetextureClampU.push({
+            frame: 0,
+            value: -20,
+        });
+        keymissivetextureClampU.push({
+            frame: MEET_ANIMATION_LIGHT_ON_FRAME ,
+            value: -20,
+        });
+        keymissivetextureClampU.push({
+           frame: MEET_ANIMATION_LIGHT_ON_FRAME +1,
+           value: 0,
+       });      
+       keymissivetextureClampU.push({
+            frame: 100,
+            value: 0
+
+        });
+       animEmissivetextureUOffset.setKeys(keymissivetextureClampU);
+
+       
+       var keymissivetextureClampV = [];
+
+       keymissivetextureClampV.push({
+           frame: 0,
+           value: -20,
+       });
+       keymissivetextureClampV.push({
+           frame: MEET_ANIMATION_LIGHT_ON_FRAME ,
+           value: -20,
+       });
+       keymissivetextureClampV.push({
+          frame: MEET_ANIMATION_LIGHT_ON_FRAME +1,
+          value: -1,
+      });      
+      keymissivetextureClampV.push({
+           frame: 100,
+           value: -1
+
+       });
+      animEmissivetextureVOffset.setKeys(keymissivetextureClampV);
+   
+     ((this._surfaceDiffuserMaterial as GLBabylonMaterialDiffuser).glmaterial.emissiveTexture as BABYLON.Texture).animations = [];
+       ((this._surfaceDiffuserMaterial as GLBabylonMaterialDiffuser).glmaterial.emissiveTexture as BABYLON.Texture).animations.push( animEmissivetextureUOffset);
+
+       ((this._surfaceDiffuserMaterial as GLBabylonMaterialDiffuser).glmaterial.emissiveTexture as BABYLON.Texture).animations.push( animEmissivetextureVOffset);
+    } // fi emissive not null
         // _lightMesh -> 
         var animSunToMoonLightMesh = new BABYLON.Animation("animSunToMoonLightMesh", "emissiveColor",MEET_ANIMATION_SPEED,
         BABYLON.Animation.ANIMATIONTYPE_COLOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
@@ -210,9 +296,11 @@ class ActionCustomisableDiffuseSurfaceLight extends IInitialisable implements IA
       /*  this._lightMesh.material.subMaterials[0].animations = [];
         this._lightMesh.material.subMaterials[0].animations.push( animSunToMoonLightMesh);
 */
-        this._scene.scene.beginAnimation((this._surfaceDiffuserMaterial as GLBabylonMaterialDiffuser).glmaterial, 0, maxFrame, true);
-        this._scene.scene.beginAnimation((this._surfaceLightMaterial as GLBabylonMaterial).glmaterial, 0, maxFrame, true);
-        this._scene.scene.beginAnimation((this._surfaceLight as GLBabylonLight)._gllight, 0, maxFrame, true);
+        this._scene.scene.beginAnimation((this._surfaceDiffuserMaterial as GLBabylonMaterialDiffuser).glmaterial, minFrame, maxFrame, true);
+     
+        this._scene.scene.beginAnimation((this._surfaceLightMaterial as GLBabylonMaterial).glmaterial, minFrame, maxFrame, true);
+        this._scene.scene.beginAnimation((this._surfaceLight as GLBabylonLight)._gllight, minFrame, maxFrame, false, 1.0, () => 
+        this.eventOnActiveHandlerEnd(this.eventOnActiveHandlerEndSender));
     }
     _AnimatedMoonToSunLights() : void
     {
@@ -274,6 +362,63 @@ class ActionCustomisableDiffuseSurfaceLight extends IInitialisable implements IA
         (this._surfaceDiffuserMaterial as GLBabylonMaterialDiffuser).glmaterial.animations = [];
         (this._surfaceDiffuserMaterial as GLBabylonMaterialDiffuser).glmaterial.animations.push( animMoonToSunTissu);
 
+                    // hack : clamp texture emissive pour ne pas l'afficher tant que la lampe n'est pas allumée
+                if ( (this._surfaceDiffuserMaterial as GLBabylonMaterialDiffuser).glmaterial.emissiveTexture  != null )
+                    {
+                    var animEmissivetextureVOffset = new BABYLON.Animation("animEmissivetextureVOffset", "vOffset", MEET_ANIMATION_SPEED,
+                    BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+                    var animEmissivetextureUOffset = new BABYLON.Animation("animEmissivetextureUOffset", "uOffset", MEET_ANIMATION_SPEED,
+                    BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+            
+                    var keymissivetextureClampU = [];
+            
+                    keymissivetextureClampU.push({
+                        frame: 0,
+                        value: 0,
+                    });
+                    keymissivetextureClampU.push({
+                        frame: MEET_ANIMATION_LIGHT_ON_FRAME ,
+                        value: 0,
+                    });
+                    keymissivetextureClampU.push({
+                       frame: MEET_ANIMATION_LIGHT_ON_FRAME +1,
+                       value: -20,
+                   });      
+                   keymissivetextureClampU.push({
+                        frame: 100,
+                        value: -20
+            
+                    });
+                   animEmissivetextureUOffset.setKeys(keymissivetextureClampU);
+            
+                   
+                   var keymissivetextureClampV = [];
+            
+                   keymissivetextureClampV.push({
+                       frame: 0,
+                       value: -1,
+                   });
+                   keymissivetextureClampV.push({
+                       frame: MEET_ANIMATION_LIGHT_ON_FRAME ,
+                       value: -1,
+                   });
+                   keymissivetextureClampV.push({
+                      frame: MEET_ANIMATION_LIGHT_ON_FRAME +1,
+                      value: -20,
+                  });      
+                  keymissivetextureClampV.push({
+                       frame: 100,
+                       value: -20
+            
+                   });
+                  animEmissivetextureVOffset.setKeys(keymissivetextureClampV);
+               
+                 ((this._surfaceDiffuserMaterial as GLBabylonMaterialDiffuser).glmaterial.emissiveTexture as BABYLON.Texture).animations = [];
+                   ((this._surfaceDiffuserMaterial as GLBabylonMaterialDiffuser).glmaterial.emissiveTexture as BABYLON.Texture).animations.push( animEmissivetextureUOffset);
+            
+                   ((this._surfaceDiffuserMaterial as GLBabylonMaterialDiffuser).glmaterial.emissiveTexture as BABYLON.Texture).animations.push( animEmissivetextureVOffset);
+                } // fi emissive not null
+
         // transparence du tissu lorsque la lumière s'allume
         var animMoonToSunTissuTransparency = new BABYLON.Animation("animMoonToSunTissuTransparency", "alpha", MEET_ANIMATION_SPEED,
         BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
@@ -331,9 +476,10 @@ class ActionCustomisableDiffuseSurfaceLight extends IInitialisable implements IA
         (this._surfaceLightMaterial as GLBabylonMaterial).glmaterial.animations = [];
         (this._surfaceLightMaterial as GLBabylonMaterial).glmaterial.animations.push( animMoonToSunLightMesh);
 
-       this._scene.scene.beginAnimation((this._surfaceDiffuserMaterial as GLBabylonMaterialDiffuser).glmaterial, 0, 100,true);
+        this._scene.scene.beginAnimation((this._surfaceDiffuserMaterial as GLBabylonMaterialDiffuser).glmaterial, 0, 100,true);
         this._scene.scene.beginAnimation((this._surfaceLightMaterial as GLBabylonMaterial).glmaterial, 0, 100,true);
-        this._scene.scene.beginAnimation((this._surfaceLight as GLBabylonLight)._gllight, 0, 100,true);
-    }
+        this._scene.scene.beginAnimation((this._surfaceLight as GLBabylonLight)._gllight, 0, 100,false, 1.0,  () => 
+        this.eventOnActiveHandlerEnd(this.eventOnActiveHandlerEndSender));
+        }
 
 }

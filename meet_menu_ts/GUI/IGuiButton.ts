@@ -1,3 +1,5 @@
+/// <reference path="./IGuiControl.ts" />
+
 abstract class IGuiButton implements IGuiControl
 {
     abstract SetAnchor( anchorMesh : any);
@@ -9,4 +11,6 @@ abstract class IGuiButton implements IGuiControl
     abstract IsVisible(isVisible : boolean) : void;
     
     abstract DisplayIsClicked(isClicked : boolean) : void;
+
+    abstract ChangePicture( strPath : string);
 }

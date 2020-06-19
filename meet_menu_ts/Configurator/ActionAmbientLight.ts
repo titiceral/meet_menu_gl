@@ -1,11 +1,19 @@
+/// <reference path="./IInitialisable.ts"/>
+
 /// <reference path="../tools/MeetLogger.ts"/>
 
 /// <reference path="d:/dev/js_reference/babylon.d.ts" />
 /// <reference path="../Scene/MeetScene.ts" />
-/// <reference path="../IActionSender.ts"/>
+/// <reference path="./IActionSender.ts"/>
+
 
 class ActionAmbientLight extends IInitialisable implements IActionSender
 {
+    InitiliseCallback(eventOnActiveHandlerEndIn: (sender: any) => void, sender: any): void {
+       // throw new Error("Method not implemented.");
+       //do nothing
+    }
+    eventOnActiveHandlerEnd: () => void;
    
     private _isNightMode : boolean;
 
@@ -121,29 +129,29 @@ class ActionAmbientLight extends IInitialisable implements IActionSender
          intensity = 0.2;
          keysSunToMoonDirection.push({
             frame: 0,
-            value: new BABYLON.Vector3(100,100,0)
+            value: new BABYLON.Vector3(100,100,-10)
         });
         intensity = 0.5;
         keysSunToMoonDirection.push({
             frame: 50,
-            value: new BABYLON.Vector3(100,20,0)
+            value: new BABYLON.Vector3(100,20,-10)
         });
       
        
         keysSunToMoonDirection.push({
           frame: 60,
-            value: new  BABYLON.Vector3(100,10,0)
+            value: new  BABYLON.Vector3(100,10,-10)
 
         });
         keysSunToMoonDirection.push({
             frame: 70,
-            value: new  BABYLON.Vector3(100,100,0)
+            value: new  BABYLON.Vector3(100,100,-10)
     
             });
             
         keysSunToMoonDirection.push({
             frame: 100,
-            value: new BABYLON.Vector3(100,100,0)
+            value: new BABYLON.Vector3(100,100,-10)
 
         });
         animationSunToMoonDirection.setKeys(keysSunToMoonDirection);

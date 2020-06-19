@@ -1,4 +1,4 @@
-/// <reference path="Configurator/ICustomisable.ts" />
+/// <reference path="../Configurator/ICustomisable.ts" />
 
 interface IGuiFactory
 {

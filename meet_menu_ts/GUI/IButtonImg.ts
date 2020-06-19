@@ -1,9 +1,10 @@
 /// <reference path="IButton.ts" />
+/// <reference path="./GuiFactoryManager.ts" />
 
 abstract class IButtonImg extends IButton
 {
 
-    constructor(anchorMesh : any,  strName : string, strTexturePath : string )
+    constructor(anchorMesh : any,  strName : string, protected strTexturePath : string )
     {
         
         super(anchorMesh);

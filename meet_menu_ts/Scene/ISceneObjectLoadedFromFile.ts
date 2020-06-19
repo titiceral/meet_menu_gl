@@ -10,6 +10,7 @@ abstract class ISceneObjectLoadedFromFile extends ISceneObjectLoaded
     }
     _loadBabylonFile( modelFolderPath : string, modelFileName : string, scene : BABYLON.Scene ) : void
     {
+     
          BABYLON.SceneLoader.ImportMesh("", modelFolderPath, modelFileName, scene, this._loadBabylonFileOnSucces );
  
     }

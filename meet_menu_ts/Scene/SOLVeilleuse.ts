@@ -19,13 +19,13 @@ class SOLVeilleuse extends ISceneObjectLoadedFromFile {
         this._onObjectLoaded = onObjectLoaded;
         this._onObjectLoadedSender = sender;
        
-        this._loadBabylonFile("assets/3D/", "lampe2.babylon", this._meetScene.scene);
+        this._loadBabylonFile("assets/3D/", "lampe3.babylon", this._meetScene.scene);
 
     }
 
-    _loadBabylonFileOnSucces(newMeshes: BABYLON.Mesh[], ...tests): void {
+    _loadBabylonFileOnSucces(newMeshes: BABYLON.Mesh[]): void {
 
-        console.log(tests);
+      
         //var newMeshes = meshes;
         // SHADOW_GEN    var ampouleLight = new BABYLON.PointLight("ampouleLight", new BABYLON.Vector3(0,0,0), this.scene);
         var tissuLight = new BABYLON.SpotLight("tissuLight",
@@ -90,10 +90,12 @@ class SOLVeilleuse extends ISceneObjectLoadedFromFile {
 
                 tissuMeshMat.emissiveColor = MEET_LIGHT_COLOR_TISSU;
                 tissuMeshMat.emissiveTexture = new BABYLON.Texture("./assets/3D/tissu_savane_emissive.jpg", g_SOLFromFile._meetScene.scene);
-
+                tissuMeshMat.emissiveTexture.wrapU = BABYLON.Texture.CLAMP_ADDRESSMODE;
+                tissuMeshMat.emissiveTexture.wrapV = BABYLON.Texture.CLAMP_ADDRESSMODE;
                 gl.intensity = 0.8;
                 gl.blurKernelSize = 20;
 
+              
             }
             else // autres meshs de la scene non ampoule et non tissu
             {
@@ -141,10 +143,32 @@ class SOLVeilleuse extends ISceneObjectLoadedFromFile {
         let mainLight = this._mainLight as ActionCustomisableDiffuseSurfaceLight;
         mainLight._defaultKey = "Savane";
 
-        mainLight._allowedProperties.set("Savane", new AllowedDiffuseSurfaceProperty( new IGLMaterialDiffuser({ emissiveColor : MEET_LIGHT_COLOR_TISSU })
-        , new IGLLight({lightIntensity : MEET_LIGHT_INTENSITY})
-        , MEET_LIGHT_COLOR_TISSU ));
-        
+        let allowedProperties =
+        new Map<string, AllowedDiffuseSurfaceProperty>().set("Savane", new AllowedDiffuseSurfaceProperty( new IGLMaterialDiffuser({
+            diffuseTexture : "./assets/3D/tissu_savane.jpg",
+            emissiveTexture : "./assets/3D/tissu_savane_emissive.jpg",
+            opacityTexture : "./assets/3D/tissuAlpha.png",
+             emissiveColor : MEET_LIGHT_COLOR_TISSU })
+        , new IGLLight({lightIntensity : MEET_LIGHT_INTENSITY, lightColor : MEET_LIGHT_COLOR})
+        , MEET_LIGHT_COLOR_TISSU )) 
+            .set("Rouge", new AllowedDiffuseSurfaceProperty( new IGLMaterialDiffuser({
+            diffuseTexture : "./assets/textures/tissu_red.png",
+            emissiveTexture : null,
+            opacityTexture : "./assets/3D/tissuAlpha_red.png",
+            emissiveColor : new ColorRGB(1*0.3,0.1*0.3,0) })
+        , new IGLLight({lightIntensity : MEET_LIGHT_INTENSITY, lightColor : new ColorRGB(1*0.3,0.1*0.3,0)})
+        , new ColorRGB(1*0.3,0.5*0.3,0) ))
+        .set("Princesses", new AllowedDiffuseSurfaceProperty( new IGLMaterialDiffuser({
+            diffuseTexture : "./assets/textures/tissu_frozen.jpg",
+            emissiveTexture : "./assets/textures/tissu_frozen_emissive.jpg",
+            opacityTexture : "./assets/3D/tissuAlpha.png",
+            uScaleTexture : 0.8,
+            vScaleTexture : 1,
+             emissiveColor : MEET_LIGHT_COLOR_TISSU })
+        , new IGLLight({lightIntensity : MEET_LIGHT_INTENSITY, lightColor : MEET_LIGHT_COLOR})
+        , MEET_LIGHT_COLOR_TISSU )) 
+
+        mainLight.AllowedProperties = allowedProperties;
        /* this.customisableMaterial._allowedColors.add(new AllowedColor("Blanc", new Map<string, IGLMaterial>()
            // .set("Bleu", new IGLMaterial({ diffuse: new ColorRGB(1 / 255, 73 / 255, 155 / 255) }))
             .set("Blanc", new IGLMaterial({ diffuse: new ColorRGB(1 , 255 / 255, 255 / 255) }))
