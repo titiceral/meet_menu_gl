@@ -1,7 +1,3 @@
-abstract class ICustomisable
-{
-   
-
-    abstract ApplyCustomisationHandler( ) : void;
-    
+abstract class ICustomisable {
+  abstract ApplyCustomisationHandler(...tests): void;
 }

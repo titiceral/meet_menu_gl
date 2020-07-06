@@ -34,7 +34,7 @@ class GuiFactoryBabylon implements IGuiFactory {
     strLabel: string,
     strGroup: string,
     isChecked: boolean,
-    configurator: ICustomisable
+    buttonAction: IButton
   ): IGuiButton {
     var button = new BABYLON.GUI.RadioButton();
 
@@ -45,11 +45,12 @@ class GuiFactoryBabylon implements IGuiFactory {
     button.background = "#ffffff66";
     button.isChecked = isChecked;
     button.group = strGroup;
-    if (configurator != null) {
+    if (buttonAction != null) {
       button.onPointerClickObservable.add(
-        configurator.ApplyCustomisationHandler
+        buttonAction.OnClicked
+        //configurator.ApplyCustomisationHandler
       );
-      button.onPointerClickObservable.observers[0].scope = configurator;
+      button.onPointerClickObservable.observers[0].scope = buttonAction; //configurator;
     }
 
     // ajout le label

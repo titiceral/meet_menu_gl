@@ -10,7 +10,7 @@ Gui = function (_MeetScene) {
 
   // point d'acroche du GUI
   let anchorMesh = new BABYLON.Mesh("AnchorMesh");
-  anchorMesh.position = new BABYLON.Vector3(8, 25, -0);
+  anchorMesh.position = new BABYLON.Vector3(-8, 25, -0);
   let subTissuRadioLinker = new RadioBtnLinker(
     GuiFactoryManager.Instance().CreatePanel()
   );
@@ -37,6 +37,7 @@ Gui = function (_MeetScene) {
           "tissuRdoGrp",
           subTissuRadioLinker,
           this._MeetScene.objectLoaded._mainLight,
+          null,
           pairNamePropKey == this._MeetScene.objectLoaded._mainLight._defaultKey
         )
       );
@@ -44,7 +45,7 @@ Gui = function (_MeetScene) {
   ); // rof each pair
 
   // load material color actions from material customizable
-  let subMaterialRadioLinker = new RadioBtnLinker(
+  /* let subMaterialRadioLinker = new RadioBtnLinker(
     GuiFactoryManager.Instance().CreatePanel()
   );
   let subMaterialMenu = [];
@@ -69,10 +70,10 @@ Gui = function (_MeetScene) {
 
       iGroup++;
     }
-  ); // rof each sets
+  ); // rof each sets*/
 
   let subMainMenu = [
-    new ActionButtonImg(
+    new ActionDoubleButtonImg(
       anchorMesh,
       "Night",
       "./assets/images/gui_moon.png",
@@ -81,13 +82,19 @@ Gui = function (_MeetScene) {
         this._MeetScene._ambientLightCustom,
         this._MeetScene.objectLoaded._mainLight,
       ]
-    ),
+    ) /*
     new MenuLine(
       anchorMesh,
       "Material",
       "./assets/images/gui_brush.png",
       new Vector2D(0, 30),
       subMaterialMenu
+    ),*/,
+    new ActionButtonImgToUrl(
+      anchorMesh,
+      "PUrl",
+      "./assets/images/gui_store.png",
+      "https://www.etsy.com/fr/shop/SuboDesign?ref=seller-platform-mcnav"
     ),
     new MenuLine(
       anchorMesh,

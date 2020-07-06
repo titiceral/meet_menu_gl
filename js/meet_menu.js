@@ -279,12 +279,18 @@ class IGLMaterialDiffuser {
         this.uScaleTexture = null;
         this.vScaleTexture = null;
         this.emissiveColor = null;
+        this.uOffsetTexture = 0;
+        this.vOffsetTexture = -1;
         if (colorOptions.diffuseTexture != null)
             this.diffuseTexture = colorOptions.diffuseTexture;
         if (colorOptions.uScaleTexture)
             this.uScaleTexture = colorOptions.uScaleTexture;
         if (colorOptions.vScaleTexture)
             this.vScaleTexture = colorOptions.vScaleTexture;
+        if (colorOptions.uOffsetTexture)
+            this.uOffsetTexture = colorOptions.uOffsetTexture;
+        if (colorOptions.vOffsetTexture)
+            this.vOffsetTexture = colorOptions.vOffsetTexture;
         if (colorOptions.emissiveTexture != null)
             this.emissiveTexture = colorOptions.emissiveTexture;
         if (colorOptions.opacityTexture != null)
@@ -309,6 +315,8 @@ class GLMaterialDiffuser extends IGLMaterialDiffuser {
         this.diffuseTexture = fromMat.diffuseTexture;
         this.uScaleTexture = fromMat.uScaleTexture;
         this.vScaleTexture = fromMat.vScaleTexture;
+        this.vOffsetTexture = fromMat.vOffsetTexture;
+        this.uOffsetTexture = fromMat.uOffsetTexture;
         this.emissiveTexture = fromMat.emissiveTexture;
         this.emissiveColor = fromMat.emissiveColor;
     }
@@ -323,7 +331,7 @@ class GLBabylonMaterialDiffuser extends GLMaterialDiffuser {
         super({});
         this.glmaterial = glmaterial;
     }
-    SetDiffuseTexture(strTexturePath, uScale, vScale) {
+    SetDiffuseTexture(strTexturePath, uScale, vScale, uOffset, vOffset) {
         if (strTexturePath != null) {
             this.glmaterial.diffuseTexture = new BABYLON.Texture(strTexturePath, null);
             if (uScale != null) {
@@ -342,8 +350,12 @@ class GLBabylonMaterialDiffuser extends GLMaterialDiffuser {
         else {
             this.glmaterial.diffuseTexture = null;
         }
+        this.glmaterial.diffuseTexture.wrapU = BABYLON.Texture.CLAMP_ADDRESSMODE;
+        this.glmaterial.diffuseTexture.wrapV = BABYLON.Texture.CLAMP_ADDRESSMODE;
+        this.glmaterial.diffuseTexture.vOffset = vOffset;
+        this.glmaterial.diffuseTexture.uOffset = uOffset;
     }
-    SetEmissiveTexture(strTexturePath, uScale, vScale) {
+    SetEmissiveTexture(strTexturePath, uScale, vScale, uOffset, vOffset) {
         if (strTexturePath != null) {
             this.glmaterial.emissiveTexture = new BABYLON.Texture(strTexturePath, null);
             if (uScale != null) {
@@ -360,8 +372,8 @@ class GLBabylonMaterialDiffuser extends GLMaterialDiffuser {
             }
             this.glmaterial.emissiveTexture.wrapU = BABYLON.Texture.CLAMP_ADDRESSMODE;
             this.glmaterial.emissiveTexture.wrapV = BABYLON.Texture.CLAMP_ADDRESSMODE;
-            this.glmaterial.emissiveTexture.vOffset = -20;
-            this.glmaterial.emissiveTexture.uOffset = -20;
+            this.glmaterial.emissiveTexture.vOffset = vOffset;
+            this.glmaterial.emissiveTexture.uOffset = uOffset;
         }
         else {
             this.glmaterial.emissiveTexture = null;
@@ -419,21 +431,25 @@ class ActionCustomisableDiffuseSurfaceLight extends IInitialisable {
         this._AnimatedSunToMoonLights(0, 0);
     }
     ApplyCustomisationHandler(...tests) {
-        let buttonName = tests[1].target.name;
+        let buttonName = tests[0][1].target.name;
         this._setCustomisable(buttonName);
         if (this._isNightMode) {
             this._AnimatedSunToMoonLights(100, 100);
+        }
+        else {
+            this._AnimatedSunToMoonLights(0, 0);
         }
     }
     _setCustomisable(strKey) {
         let selectedProperties = this._allowedProperties.get(strKey);
         if (selectedProperties != null) {
             this._surfaceDiffuserMaterial.CopyFrom(selectedProperties._diffuserProperties);
-            this._surfaceDiffuserMaterial.SetDiffuseTexture(selectedProperties._diffuserProperties.diffuseTexture, selectedProperties._diffuserProperties.uScaleTexture, selectedProperties._diffuserProperties.vScaleTexture);
-            this._surfaceDiffuserMaterial.SetEmissiveTexture(selectedProperties._diffuserProperties.emissiveTexture, selectedProperties._diffuserProperties.uScaleTexture, selectedProperties._diffuserProperties.vScaleTexture);
-            this._surfaceDiffuserMaterial.SetOpacityTexture(selectedProperties._diffuserProperties.opacityTexture, selectedProperties._diffuserProperties.uScaleTexture, selectedProperties._diffuserProperties.vScaleTexture);
+            this._surfaceDiffuserMaterial.SetDiffuseTexture(selectedProperties._diffuserProperties.diffuseTexture, selectedProperties._diffuserProperties.uScaleTexture, selectedProperties._diffuserProperties.vScaleTexture, selectedProperties._diffuserProperties.uOffsetTexture, selectedProperties._diffuserProperties.vOffsetTexture);
+            this._surfaceDiffuserMaterial.SetEmissiveTexture(selectedProperties._diffuserProperties.emissiveTexture, selectedProperties._diffuserProperties.uScaleTexture, selectedProperties._diffuserProperties.vScaleTexture, selectedProperties._diffuserProperties.uOffsetTexture, selectedProperties._diffuserProperties.vOffsetTexture);
+            this._surfaceDiffuserMaterial.SetOpacityTexture(selectedProperties._diffuserProperties.opacityTexture, selectedProperties._diffuserProperties.uScaleTexture, selectedProperties._diffuserProperties.vScaleTexture, selectedProperties._diffuserProperties.uOffsetTexture, selectedProperties._diffuserProperties.vOffsetTexture);
             this._surfaceDiffuserMaterial.ApplyColor();
-            this._surfaceLightMaterial.emissive = selectedProperties._surfaceLightColor;
+            this._surfaceLightMaterial.emissive =
+                selectedProperties._surfaceLightColor;
             this._surfaceLightMaterial.ApplyColors();
             this._surfaceLight.CopyFrom(selectedProperties._lightProperties);
             this._surfaceLight.ApplyProperties();
@@ -465,15 +481,15 @@ class ActionCustomisableDiffuseSurfaceLight extends IInitialisable {
         });
         keysSunToMoonLight.push({
             frame: MEET_ANIMATION_LIGHT_ON_FRAME,
-            value: this._surfaceLight.lightIntensity * 0.5
+            value: this._surfaceLight.lightIntensity * 0.5,
         });
         keysSunToMoonLight.push({
             frame: MEET_ANIMATION_LIGHT_ON_FRAME + 5,
-            value: this._surfaceLight.lightIntensity * 0.9
+            value: this._surfaceLight.lightIntensity * 0.9,
         });
         keysSunToMoonLight.push({
             frame: 100,
-            value: this._surfaceLight.lightIntensity * 1.2
+            value: this._surfaceLight.lightIntensity * 1.2,
         });
         animationSunToMoonLight.setKeys(keysSunToMoonLight);
         this._surfaceLight._gllight.animations = [];
@@ -486,19 +502,21 @@ class ActionCustomisableDiffuseSurfaceLight extends IInitialisable {
         });
         keysSunToMoonTissu.push({
             frame: MEET_ANIMATION_LIGHT_ON_FRAME,
-            value: BABYLON.Color3.Black
+            value: BABYLON.Color3.Black,
         });
         keysSunToMoonTissu.push({
             frame: MEET_ANIMATION_LIGHT_ON_FRAME + 5,
-            value: ColorRGBBabylon.FromColorRGB(this._surfaceDiffuserMaterial.emissiveColor)
+            value: ColorRGBBabylon.FromColorRGB(this._surfaceDiffuserMaterial.emissiveColor),
         });
         keysSunToMoonTissu.push({
             frame: 100,
-            value: ColorRGBBabylon.FromColorRGB(this._surfaceDiffuserMaterial.emissiveColor)
+            value: ColorRGBBabylon.FromColorRGB(this._surfaceDiffuserMaterial.emissiveColor),
         });
         animSunToMoonTissu.setKeys(keysSunToMoonTissu);
-        this._surfaceDiffuserMaterial.glmaterial.animations = [];
-        this._surfaceDiffuserMaterial.glmaterial.animations.push(animSunToMoonTissu);
+        this
+            ._surfaceDiffuserMaterial.glmaterial.animations = [];
+        this
+            ._surfaceDiffuserMaterial.glmaterial.animations.push(animSunToMoonTissu);
         var animSunToMoonTissuTransparency = new BABYLON.Animation("animSunToMoonTissuTransparency", "alpha", MEET_ANIMATION_SPEED, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
         var keysSunToMoonTissuTrans = [];
         keysSunToMoonTissuTrans.push({
@@ -515,11 +533,13 @@ class ActionCustomisableDiffuseSurfaceLight extends IInitialisable {
         });
         keysSunToMoonTissuTrans.push({
             frame: 100,
-            value: 1
+            value: 1,
         });
         animSunToMoonTissuTransparency.setKeys(keysSunToMoonTissuTrans);
-        this._surfaceDiffuserMaterial.glmaterial.animations.push(animSunToMoonTissuTransparency);
-        if (this._surfaceDiffuserMaterial.glmaterial.emissiveTexture != null) {
+        this
+            ._surfaceDiffuserMaterial.glmaterial.animations.push(animSunToMoonTissuTransparency);
+        if (this._surfaceDiffuserMaterial.glmaterial
+            .emissiveTexture != null) {
             var animEmissivetextureVOffset = new BABYLON.Animation("animEmissivetextureVOffset", "vOffset", MEET_ANIMATION_SPEED, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
             var animEmissivetextureUOffset = new BABYLON.Animation("animEmissivetextureUOffset", "uOffset", MEET_ANIMATION_SPEED, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
             var keymissivetextureClampU = [];
@@ -533,12 +553,13 @@ class ActionCustomisableDiffuseSurfaceLight extends IInitialisable {
             });
             keymissivetextureClampU.push({
                 frame: MEET_ANIMATION_LIGHT_ON_FRAME + 1,
-                value: 0,
+                value: this._surfaceDiffuserMaterial.uOffsetTexture,
             });
             keymissivetextureClampU.push({
                 frame: 100,
-                value: 0
+                value: this._surfaceDiffuserMaterial.uOffsetTexture,
             });
+            console.log("uOffsetTexture " + this._surfaceDiffuserMaterial.uOffsetTexture);
             animEmissivetextureUOffset.setKeys(keymissivetextureClampU);
             var keymissivetextureClampV = [];
             keymissivetextureClampV.push({
@@ -551,16 +572,19 @@ class ActionCustomisableDiffuseSurfaceLight extends IInitialisable {
             });
             keymissivetextureClampV.push({
                 frame: MEET_ANIMATION_LIGHT_ON_FRAME + 1,
-                value: -1,
+                value: this._surfaceDiffuserMaterial.vOffsetTexture,
             });
             keymissivetextureClampV.push({
                 frame: 100,
-                value: -1
+                value: this._surfaceDiffuserMaterial.vOffsetTexture,
             });
             animEmissivetextureVOffset.setKeys(keymissivetextureClampV);
-            this._surfaceDiffuserMaterial.glmaterial.emissiveTexture.animations = [];
-            this._surfaceDiffuserMaterial.glmaterial.emissiveTexture.animations.push(animEmissivetextureUOffset);
-            this._surfaceDiffuserMaterial.glmaterial.emissiveTexture.animations.push(animEmissivetextureVOffset);
+            this._surfaceDiffuserMaterial.glmaterial
+                .emissiveTexture.animations = [];
+            this._surfaceDiffuserMaterial.glmaterial
+                .emissiveTexture.animations.push(animEmissivetextureUOffset);
+            this._surfaceDiffuserMaterial.glmaterial
+                .emissiveTexture.animations.push(animEmissivetextureVOffset);
         }
         var animSunToMoonLightMesh = new BABYLON.Animation("animSunToMoonLightMesh", "emissiveColor", MEET_ANIMATION_SPEED, BABYLON.Animation.ANIMATIONTYPE_COLOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
         var keysSunToMoonLightMesh = [];
@@ -570,19 +594,21 @@ class ActionCustomisableDiffuseSurfaceLight extends IInitialisable {
         });
         keysSunToMoonLightMesh.push({
             frame: MEET_ANIMATION_LIGHT_ON_FRAME,
-            value: BABYLON.Color3.Black
+            value: BABYLON.Color3.Black,
         });
         keysSunToMoonLightMesh.push({
             frame: MEET_ANIMATION_LIGHT_ON_FRAME + 5,
-            value: ColorRGBBabylon.FromColorRGB(this._surfaceLightMaterial.emissive)
+            value: ColorRGBBabylon.FromColorRGB(this._surfaceLightMaterial.emissive),
         });
         keysSunToMoonLightMesh.push({
             frame: 100,
-            value: ColorRGBBabylon.FromColorRGB(this._surfaceLightMaterial.emissive)
+            value: ColorRGBBabylon.FromColorRGB(this._surfaceLightMaterial.emissive),
         });
         animSunToMoonLightMesh.setKeys(keysSunToMoonLightMesh);
-        this._surfaceLightMaterial.glmaterial.animations = [];
-        this._surfaceLightMaterial.glmaterial.animations.push(animSunToMoonLightMesh);
+        this
+            ._surfaceLightMaterial.glmaterial.animations = [];
+        this
+            ._surfaceLightMaterial.glmaterial.animations.push(animSunToMoonLightMesh);
         this._scene.scene.beginAnimation(this._surfaceDiffuserMaterial.glmaterial, minFrame, maxFrame, true);
         this._scene.scene.beginAnimation(this._surfaceLightMaterial.glmaterial, minFrame, maxFrame, true);
         this._scene.scene.beginAnimation(this._surfaceLight._gllight, minFrame, maxFrame, false, 1.0, () => this.eventOnActiveHandlerEnd(this.eventOnActiveHandlerEndSender));
@@ -596,15 +622,15 @@ class ActionCustomisableDiffuseSurfaceLight extends IInitialisable {
         });
         keysMoonToSunLight.push({
             frame: MEET_ANIMATION_LIGHT_ON_FRAME,
-            value: this._surfaceLight.lightIntensity * 0.9
+            value: this._surfaceLight.lightIntensity * 0.9,
         });
         keysMoonToSunLight.push({
             frame: MEET_ANIMATION_LIGHT_ON_FRAME + 5,
-            value: this._surfaceLight.lightIntensity * 0.5
+            value: this._surfaceLight.lightIntensity * 0.5,
         });
         keysMoonToSunLight.push({
             frame: 100,
-            value: 0
+            value: 0,
         });
         animationMoonToSunLight.setKeys(keysMoonToSunLight);
         this._surfaceLight._gllight.animations = [];
@@ -613,34 +639,37 @@ class ActionCustomisableDiffuseSurfaceLight extends IInitialisable {
         var keysMoonToSunTissu = [];
         keysMoonToSunTissu.push({
             frame: 0,
-            value: ColorRGBBabylon.FromColorRGB(this._surfaceDiffuserMaterial.emissiveColor)
+            value: ColorRGBBabylon.FromColorRGB(this._surfaceDiffuserMaterial.emissiveColor),
         });
         keysMoonToSunTissu.push({
             frame: MEET_ANIMATION_LIGHT_ON_FRAME,
-            value: ColorRGBBabylon.FromColorRGB(this._surfaceDiffuserMaterial.emissiveColor)
+            value: ColorRGBBabylon.FromColorRGB(this._surfaceDiffuserMaterial.emissiveColor),
         });
         keysMoonToSunTissu.push({
             frame: MEET_ANIMATION_LIGHT_ON_FRAME + 5,
-            value: BABYLON.Color3.Black
+            value: BABYLON.Color3.Black,
         });
         keysMoonToSunTissu.push({
             frame: 100,
             value: BABYLON.Color3.Black,
         });
         animMoonToSunTissu.setKeys(keysMoonToSunTissu);
-        this._surfaceDiffuserMaterial.glmaterial.animations = [];
-        this._surfaceDiffuserMaterial.glmaterial.animations.push(animMoonToSunTissu);
-        if (this._surfaceDiffuserMaterial.glmaterial.emissiveTexture != null) {
+        this
+            ._surfaceDiffuserMaterial.glmaterial.animations = [];
+        this
+            ._surfaceDiffuserMaterial.glmaterial.animations.push(animMoonToSunTissu);
+        if (this._surfaceDiffuserMaterial.glmaterial
+            .emissiveTexture != null) {
             var animEmissivetextureVOffset = new BABYLON.Animation("animEmissivetextureVOffset", "vOffset", MEET_ANIMATION_SPEED, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
             var animEmissivetextureUOffset = new BABYLON.Animation("animEmissivetextureUOffset", "uOffset", MEET_ANIMATION_SPEED, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
             var keymissivetextureClampU = [];
             keymissivetextureClampU.push({
                 frame: 0,
-                value: 0,
+                value: this._surfaceDiffuserMaterial.uOffsetTexture,
             });
             keymissivetextureClampU.push({
                 frame: MEET_ANIMATION_LIGHT_ON_FRAME,
-                value: 0,
+                value: this._surfaceDiffuserMaterial.uOffsetTexture,
             });
             keymissivetextureClampU.push({
                 frame: MEET_ANIMATION_LIGHT_ON_FRAME + 1,
@@ -648,17 +677,17 @@ class ActionCustomisableDiffuseSurfaceLight extends IInitialisable {
             });
             keymissivetextureClampU.push({
                 frame: 100,
-                value: -20
+                value: -20,
             });
             animEmissivetextureUOffset.setKeys(keymissivetextureClampU);
             var keymissivetextureClampV = [];
             keymissivetextureClampV.push({
                 frame: 0,
-                value: -1,
+                value: this._surfaceDiffuserMaterial.vOffsetTexture,
             });
             keymissivetextureClampV.push({
                 frame: MEET_ANIMATION_LIGHT_ON_FRAME,
-                value: -1,
+                value: this._surfaceDiffuserMaterial.vOffsetTexture,
             });
             keymissivetextureClampV.push({
                 frame: MEET_ANIMATION_LIGHT_ON_FRAME + 1,
@@ -666,12 +695,15 @@ class ActionCustomisableDiffuseSurfaceLight extends IInitialisable {
             });
             keymissivetextureClampV.push({
                 frame: 100,
-                value: -20
+                value: -20,
             });
             animEmissivetextureVOffset.setKeys(keymissivetextureClampV);
-            this._surfaceDiffuserMaterial.glmaterial.emissiveTexture.animations = [];
-            this._surfaceDiffuserMaterial.glmaterial.emissiveTexture.animations.push(animEmissivetextureUOffset);
-            this._surfaceDiffuserMaterial.glmaterial.emissiveTexture.animations.push(animEmissivetextureVOffset);
+            this._surfaceDiffuserMaterial.glmaterial
+                .emissiveTexture.animations = [];
+            this._surfaceDiffuserMaterial.glmaterial
+                .emissiveTexture.animations.push(animEmissivetextureUOffset);
+            this._surfaceDiffuserMaterial.glmaterial
+                .emissiveTexture.animations.push(animEmissivetextureVOffset);
         }
         var animMoonToSunTissuTransparency = new BABYLON.Animation("animMoonToSunTissuTransparency", "alpha", MEET_ANIMATION_SPEED, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
         var keysMoonToSunTissuTrans = [];
@@ -692,28 +724,31 @@ class ActionCustomisableDiffuseSurfaceLight extends IInitialisable {
             value: 1.9,
         });
         animMoonToSunTissuTransparency.setKeys(keysMoonToSunTissuTrans);
-        this._surfaceDiffuserMaterial.glmaterial.animations.push(animMoonToSunTissuTransparency);
+        this
+            ._surfaceDiffuserMaterial.glmaterial.animations.push(animMoonToSunTissuTransparency);
         var animMoonToSunLightMesh = new BABYLON.Animation("animMoonToSunLightMesh", "emissiveColor", MEET_ANIMATION_SPEED, BABYLON.Animation.ANIMATIONTYPE_COLOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
         var keysMoonToSunLightMesh = [];
         keysMoonToSunLightMesh.push({
             frame: 0,
-            value: ColorRGBBabylon.FromColorRGB(this._surfaceLightMaterial.emissive)
+            value: ColorRGBBabylon.FromColorRGB(this._surfaceLightMaterial.emissive),
         });
         keysMoonToSunLightMesh.push({
             frame: MEET_ANIMATION_LIGHT_ON_FRAME,
-            value: ColorRGBBabylon.FromColorRGB(this._surfaceLightMaterial.emissive)
+            value: ColorRGBBabylon.FromColorRGB(this._surfaceLightMaterial.emissive),
         });
         keysMoonToSunLightMesh.push({
             frame: MEET_ANIMATION_LIGHT_ON_FRAME + 5,
-            value: BABYLON.Color3.Black
+            value: BABYLON.Color3.Black,
         });
         keysMoonToSunLightMesh.push({
             frame: 100,
             value: BABYLON.Color3.Black,
         });
         animMoonToSunLightMesh.setKeys(keysMoonToSunLightMesh);
-        this._surfaceLightMaterial.glmaterial.animations = [];
-        this._surfaceLightMaterial.glmaterial.animations.push(animMoonToSunLightMesh);
+        this
+            ._surfaceLightMaterial.glmaterial.animations = [];
+        this
+            ._surfaceLightMaterial.glmaterial.animations.push(animMoonToSunLightMesh);
         this._scene.scene.beginAnimation(this._surfaceDiffuserMaterial.glmaterial, 0, 100, true);
         this._scene.scene.beginAnimation(this._surfaceLightMaterial.glmaterial, 0, 100, true);
         this._scene.scene.beginAnimation(this._surfaceLight._gllight, 0, 100, false, 1.0, () => this.eventOnActiveHandlerEnd(this.eventOnActiveHandlerEndSender));
@@ -947,7 +982,8 @@ class SOLVeilleuse extends ISceneObjectLoadedFromFile {
             mesh.position = new BABYLON.Vector3(mesh.position.x + 8.5, mesh.position.y + 0, mesh.position.z - 8.5);
             if (mesh.name == "ampoule") {
                 lightMesh = mesh;
-                mesh.material.subMaterials[0].emissiveColor = MEET_LIGHT_COLOR;
+                mesh.material
+                    .subMaterials[0].emissiveColor = MEET_LIGHT_COLOR;
                 mesh.material.emissiveTexture = null;
                 tissuLight.position.x = 0;
                 tissuLight.position.y = 8.5;
@@ -985,35 +1021,52 @@ class SOLVeilleuse extends ISceneObjectLoadedFromFile {
     _initialiseCustomisable() {
         this._meetScene.objectLoaded = g_SOLFromFile;
         this.customisableMaterial._allowedColors.add(new AllowedColor("Vernis", new Map()
-            .set("Vernis", new IGLMaterial({ diffuse: new ColorRGB(1, 255 / 255, 255 / 255),
-            specular: new ColorRGB(0.2, 0.2, 0.2), specularPower: 10,
-            diffuseTexture: "./assets/3D/AT_sayo_wood_DIFF.jpg" }))
-            .set("Brut", new IGLMaterial({ diffuse: new ColorRGB(1, 255 / 255, 255 / 255), specular: new ColorRGB(0.01, 0.01, 0.01),
-            diffuseTexture: "./assets/3D/AT_sayo_wood_DIFF.jpg" }))
-            .set("Violet", new IGLMaterial({ diffuse: new ColorRGB(90 / 255, 25 / 255, 59 / 255), specular: new ColorRGB(0.1, 0.1, 0.1), specularPower: 12,
-            diffuseTexture: "" }))));
+            .set("Vernis", new IGLMaterial({
+            diffuse: new ColorRGB(1, 255 / 255, 255 / 255),
+            specular: new ColorRGB(0.2, 0.2, 0.2),
+            specularPower: 10,
+            diffuseTexture: "./assets/3D/AT_sayo_wood_DIFF.jpg",
+        }))
+            .set("Brut", new IGLMaterial({
+            diffuse: new ColorRGB(1, 255 / 255, 255 / 255),
+            specular: new ColorRGB(0.01, 0.01, 0.01),
+            diffuseTexture: "./assets/3D/AT_sayo_wood_DIFF.jpg",
+        }))
+            .set("Violet", new IGLMaterial({
+            diffuse: new ColorRGB(90 / 255, 25 / 255, 59 / 255),
+            specular: new ColorRGB(0.1, 0.1, 0.1),
+            specularPower: 12,
+            diffuseTexture: "",
+        }))));
         let mainLight = this._mainLight;
-        mainLight._defaultKey = "Savane";
-        let allowedProperties = new Map().set("Savane", new AllowedDiffuseSurfaceProperty(new IGLMaterialDiffuser({
-            diffuseTexture: "./assets/3D/tissu_savane.jpg",
-            emissiveTexture: "./assets/3D/tissu_savane_emissive.jpg",
-            opacityTexture: "./assets/3D/tissuAlpha.png",
-            emissiveColor: MEET_LIGHT_COLOR_TISSU
-        }), new IGLLight({ lightIntensity: MEET_LIGHT_INTENSITY, lightColor: MEET_LIGHT_COLOR }), MEET_LIGHT_COLOR_TISSU))
-            .set("Rouge", new AllowedDiffuseSurfaceProperty(new IGLMaterialDiffuser({
-            diffuseTexture: "./assets/textures/tissu_red.png",
-            emissiveTexture: null,
+        mainLight._defaultKey = "Foret";
+        let allowedProperties = new Map()
+            .set("Foret", new AllowedDiffuseSurfaceProperty(new IGLMaterialDiffuser({
+            diffuseTexture: "./assets/textures/modelForet.png",
+            emissiveTexture: "./assets/textures/modelForet_emissive.png",
             opacityTexture: "./assets/3D/tissuAlpha_red.png",
-            emissiveColor: new ColorRGB(1 * 0.3, 0.1 * 0.3, 0)
-        }), new IGLLight({ lightIntensity: MEET_LIGHT_INTENSITY, lightColor: new ColorRGB(1 * 0.3, 0.1 * 0.3, 0) }), new ColorRGB(1 * 0.3, 0.5 * 0.3, 0)))
-            .set("Princesses", new AllowedDiffuseSurfaceProperty(new IGLMaterialDiffuser({
-            diffuseTexture: "./assets/textures/tissu_frozen.jpg",
-            emissiveTexture: "./assets/textures/tissu_frozen_emissive.jpg",
-            opacityTexture: "./assets/3D/tissuAlpha.png",
-            uScaleTexture: 0.8,
-            vScaleTexture: 1,
-            emissiveColor: MEET_LIGHT_COLOR_TISSU
-        }), new IGLLight({ lightIntensity: MEET_LIGHT_INTENSITY, lightColor: MEET_LIGHT_COLOR }), MEET_LIGHT_COLOR_TISSU));
+            emissiveColor: MEET_LIGHT_COLOR_TISSU,
+            uScaleTexture: 0.48,
+            vScaleTexture: 0.58,
+            uOffsetTexture: 1 - 0.68,
+            vOffsetTexture: 0.65 - 1,
+        }), new IGLLight({
+            lightIntensity: MEET_LIGHT_INTENSITY,
+            lightColor: MEET_LIGHT_COLOR,
+        }), MEET_LIGHT_COLOR_TISSU))
+            .set("Renard", new AllowedDiffuseSurfaceProperty(new IGLMaterialDiffuser({
+            diffuseTexture: "./assets/textures/renard.jpg",
+            emissiveTexture: "./assets/textures/renard_emissive.jpg",
+            opacityTexture: "./assets/3D/tissuAlpha_red.png",
+            emissiveColor: MEET_LIGHT_COLOR_TISSU,
+            uScaleTexture: 0.55,
+            vScaleTexture: 0.6,
+            uOffsetTexture: -0.03 + 0.5,
+            vOffsetTexture: -0.1,
+        }), new IGLLight({
+            lightIntensity: MEET_LIGHT_INTENSITY,
+            lightColor: MEET_LIGHT_COLOR,
+        }), MEET_LIGHT_COLOR_TISSU));
         mainLight.AllowedProperties = allowedProperties;
     }
 }
@@ -1164,7 +1217,8 @@ class MeetLoadingScreen {
     }
 }
 class IButton {
-    constructor(anchorMeshIn) {
+    constructor(anchorMeshIn, strName) {
+        this.strName = strName;
         this.positionLocal = new Vector2D(0, 0);
         this.positionWorld = new Vector2D(0, 0);
         this.isClicked = false;
@@ -1200,14 +1254,80 @@ class GuiFactoryManager {
 GuiFactoryManager._factory = null;
 class IButtonImg extends IButton {
     constructor(anchorMesh, strName, strTexturePath) {
-        super(anchorMesh);
+        super(anchorMesh, strName);
         this.strTexturePath = strTexturePath;
-        this.guiButton = GuiFactoryManager.Instance().
-            CreateGuiImageButton(strName, strTexturePath);
+        this.guiButton = GuiFactoryManager.Instance().CreateGuiImageButton(strName, strTexturePath);
         super.InitialiseButton();
     }
 }
-class ActionButtonImg extends IButtonImg {
+class ActionButtonImgToUrl extends IButtonImg {
+    constructor(anchorMesh, strName, strTexturePath, actionToUrl) {
+        super(anchorMesh, strName, strTexturePath);
+        this.actionToUrl = actionToUrl;
+        this.isClickedDone = true;
+        this._isClicked = false;
+        this.guiButton.AddEventOnClick(this.OnClicked, this);
+        if (this.guiButton != null) {
+            this.guiButton.DisplayIsClicked(false);
+        }
+    }
+    get isClicked() {
+        return this._isClicked;
+    }
+    set isClicked(value) {
+        this._isClicked = value;
+    }
+    OnProgress(progressPercentage) {
+        throw new Error("Method not implemented.");
+    }
+    OnClicked() {
+        window.open(this.actionToUrl, "_blank");
+    }
+}
+class ActionButtonText extends IButton {
+    constructor(anchorMesh, strName, strLabel) {
+        super(anchorMesh, strName);
+        this.guiButton = GuiFactoryManager.Instance().CreateGuiTextButton(strName, strLabel);
+        super.InitialiseButton();
+    }
+    OnProgress(progressPercentage) {
+        throw new Error("Method not implemented.");
+    }
+    OnClicked() {
+        if (this.isClicked) {
+            this.eventOnDesactivateHandler();
+        }
+        else {
+            this.eventOnActiveHandler();
+        }
+    }
+}
+class ActionButtonTextRadio extends IButton {
+    constructor(anchorMesh, strName, strLabel, strGroup, radioBtnLinkerIn, configurator, eventOnClicked = null, isChecked = false) {
+        super(anchorMesh, strName);
+        this.configurator = configurator;
+        this.eventOnClicked = eventOnClicked;
+        this.guiButton = GuiFactoryManager.Instance().CreateGuiRadioButton(strName, strLabel, strGroup, isChecked, this);
+        this.radioBtnLinker = radioBtnLinkerIn;
+        super.InitialiseButton();
+    }
+    get isClicked() {
+        return this._isClicked;
+    }
+    set isClicked(value) {
+        this._isClicked = value;
+    }
+    OnProgress(progressPercentage) {
+        throw new Error("Method not implemented.");
+    }
+    OnClicked(...tests) {
+        this.configurator.ApplyCustomisationHandler(tests);
+        if (this.eventOnClicked != null) {
+            this.eventOnClicked;
+        }
+    }
+}
+class ActionDoubleButtonImg extends IButtonImg {
     constructor(anchorMesh, strName, strTexturePath, strTexturePathClicked, actionbtns) {
         super(anchorMesh, strName, strTexturePath);
         this.strTexturePathClicked = strTexturePathClicked;
@@ -1231,18 +1351,20 @@ class ActionButtonImg extends IButtonImg {
         throw new Error("Method not implemented.");
     }
     OnClicked() {
-        this.isClickedDone = false;
-        if (this.isClicked) {
-            this.isClicked = false;
-            this.actionSenders.forEach(actionSender => {
-                actionSender.eventOnActiveHandler();
-            });
-        }
-        else {
-            this.isClicked = true;
-            this.actionSenders.forEach(actionSender => {
-                actionSender.eventOnDesactivateHandler();
-            });
+        if (this.isClickedDone == true) {
+            this.isClickedDone = false;
+            if (this.isClicked) {
+                this.isClicked = false;
+                this.actionSenders.forEach((actionSender) => {
+                    actionSender.eventOnActiveHandler();
+                });
+            }
+            else {
+                this.isClicked = true;
+                this.actionSenders.forEach((actionSender) => {
+                    actionSender.eventOnDesactivateHandler();
+                });
+            }
         }
     }
     OnClickedDone(sender) {
@@ -1254,46 +1376,6 @@ class ActionButtonImg extends IButtonImg {
         }
         sender.isClickedDone = true;
         sender.isClicked = sender.isClicked;
-    }
-}
-class ActionButtonText extends IButton {
-    constructor(anchorMesh, strName, strLabel) {
-        super(anchorMesh);
-        this.guiButton = GuiFactoryManager.Instance().
-            CreateGuiTextButton(strName, strLabel);
-        super.InitialiseButton();
-    }
-    OnProgress(progressPercentage) {
-        throw new Error("Method not implemented.");
-    }
-    OnClicked() {
-        if (this.isClicked) {
-            this.eventOnDesactivateHandler();
-        }
-        else {
-            this.eventOnActiveHandler();
-        }
-    }
-}
-class ActionButtonTextRadio extends IButton {
-    constructor(anchorMesh, strName, strLabel, strGroup, radioBtnLinkerIn, configurator, isChecked = false) {
-        super(anchorMesh);
-        this.guiButton = GuiFactoryManager.Instance().
-            CreateGuiRadioButton(strName, strLabel, strGroup, isChecked, configurator);
-        this.radioBtnLinker = radioBtnLinkerIn;
-        super.InitialiseButton();
-    }
-    get isClicked() {
-        return this._isClicked;
-    }
-    set isClicked(value) {
-        this._isClicked = value;
-    }
-    OnProgress(progressPercentage) {
-        throw new Error("Method not implemented.");
-    }
-    OnClicked() {
-        throw new Error("Method not implemented.");
     }
 }
 class GuiButtonBabylon {
@@ -1380,7 +1462,7 @@ class GuiFactoryBabylon {
         let buttonBabylon = new GuiButtonBabylon(button);
         return buttonBabylon;
     }
-    CreateGuiRadioButton(strName, strLabel, strGroup, isChecked, configurator) {
+    CreateGuiRadioButton(strName, strLabel, strGroup, isChecked, buttonAction) {
         var button = new BABYLON.GUI.RadioButton();
         button.name = strName;
         button.width = "24px";
@@ -1389,9 +1471,9 @@ class GuiFactoryBabylon {
         button.background = "#ffffff66";
         button.isChecked = isChecked;
         button.group = strGroup;
-        if (configurator != null) {
-            button.onPointerClickObservable.add(configurator.ApplyCustomisationHandler);
-            button.onPointerClickObservable.observers[0].scope = configurator;
+        if (buttonAction != null) {
+            button.onPointerClickObservable.add(buttonAction.OnClicked);
+            button.onPointerClickObservable.observers[0].scope = buttonAction;
         }
         let header = BABYLON.GUI.Control.AddHeader(button, strLabel, "150px", { isHorizontal: true, controlFirst: true });
         header.height = "30px";
@@ -1404,7 +1486,6 @@ class GuiFactoryBabylon {
         var button = BABYLON.GUI.Button.CreateImageOnlyButton(strLabel, texturePath);
         button.width = "32px";
         button.height = "32px";
-        button.left = "10px";
         button.color = "white";
         button.cornerRadius = 20;
         button.background = "#ffffff66";
@@ -1431,19 +1512,19 @@ class IMenu extends IButtonImg {
     constructor(anchorMesh, strName, strTexturePath, displayVectorIn, subMenusIn) {
         super(anchorMesh, strName, strTexturePath);
         this.displayVector = displayVectorIn;
-        this.subMenus = subMenusIn;
+        this.subMenus = subMenusIn.sort((a, b) => ("" + a.strName).localeCompare(b.strName));
         this.Close();
         this.ComputeButtonPositions();
         this.guiButton.AddEventOnClick(this.OnClicked, this);
     }
     Open() {
-        this.subMenus.forEach(x => {
+        this.subMenus.forEach((x) => {
             x.guiButton.IsVisible(true);
         });
         this.isClicked = true;
     }
     Close() {
-        this.subMenus.forEach(x => {
+        this.subMenus.forEach((x) => {
             if (x instanceof IMenu) {
                 x.Close();
             }
