@@ -28,18 +28,14 @@ class MeetScene
         // Appel des variables nécéssaires
         this.renderer = renderer;
         this.scene = renderer.scene;
-      //  var _this = this;
-     //   thisScene = this;
+
         this.objectLoaded = new SOLVeilleuse(this);
 
         this.onFileLoaded = onBabylonFileLoaded;
-     //   this._loadBabylonFile("assets/3D/", "lampe2.babylon",onBabylonFileLoaded) ;
+     ;
         //EST TMP
       //  this.objectLoaded = new SOLSphere();
-        this.objectLoaded.LoadObject( onBabylonFileLoaded, this.renderer);
-
- 
-    
+        this.objectLoaded.LoadObject( onBabylonFileLoaded, this.renderer); 
     
     
        
@@ -142,12 +138,6 @@ class MeetScene
            
     }*/
 
-   /* _loadBabylonFile(modelFolderPath : any , modelFileName : any, onBabylonFileLoaded  : any )
-    {
-        BABYLON.SceneLoader.ImportMesh("", modelFolderPath, modelFileName, this.scene, this._loadBabylonFileOnSucces);
-
-    }*/
-
 
     // load skybox from file of 6 cube textures
     _loadManualSkybox (folderPath : string) : void
@@ -208,241 +198,6 @@ class MeetScene
     }
 
    
-    _initialiseSunToMoonLights() : void
-    {
-        // intensité de la veilleuse -> allume la veilleuse
-       /* var animationSunToMoonLight = new BABYLON.Animation("animationSunToMoonLight", "intensity", MEET_ANIMATION_SPEED,
-        BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-
-        var keysSunToMoonLight = [];
-
-        keysSunToMoonLight.push({
-            frame: 0,
-            value: 0,
-        });
-        keysSunToMoonLight.push({
-            frame: MEET_ANIMATION_LIGHT_ON_FRAME,
-            value: MEET_LIGHT_INTENSITY *0.5
-        });
-        keysSunToMoonLight.push({
-           frame: MEET_ANIMATION_LIGHT_ON_FRAME +5,
-           value: MEET_LIGHT_INTENSITY *0.9
-       });        
-       keysSunToMoonLight.push({
-            frame: 100,
-            value: MEET_LIGHT_INTENSITY *1.2
-
-        });
-        animationSunToMoonLight.setKeys(keysSunToMoonLight);
-
-        
-        this._mainLight.animations = [];
-        this._mainLight.animations.push( animationSunToMoonLight);
-
-        // tissus
-        // Light Tissu emissive color
-        var animSunToMoonTissu = new BABYLON.Animation("animSunToMoonTissu", "emissiveColor",MEET_ANIMATION_SPEED,
-        BABYLON.Animation.ANIMATIONTYPE_COLOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-        var keysSunToMoonTissu = [];
-
-        keysSunToMoonTissu.push({
-            frame: 0,
-            value: BABYLON.Color3.Black,
-        });
-        keysSunToMoonTissu.push({
-            frame: MEET_ANIMATION_LIGHT_ON_FRAME,
-            value: BABYLON.Color3.Black
-        });
-        keysSunToMoonTissu.push({
-           frame: MEET_ANIMATION_LIGHT_ON_FRAME + 5,
-           value: MEET_LIGHT_COLOR_TISSU
-       });        
-       keysSunToMoonTissu.push({
-            frame: 100,
-            value: MEET_LIGHT_COLOR_TISSU
-
-        });
-        animSunToMoonTissu.setKeys(keysSunToMoonTissu);
-        this._tissu.material.animations = [];
-        this._tissu.material.animations.push( animSunToMoonTissu);
-
-        // transparence du tissu lorsque la lumière s'allume
-        var animSunToMoonTissuTransparency = new BABYLON.Animation("animSunToMoonTissuTransparency", "alpha", MEET_ANIMATION_SPEED,
-        BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-        var keysSunToMoonTissuTrans = [];
-
-        keysSunToMoonTissuTrans.push({
-            frame: 0,
-            value: 1.9,
-        });
-        keysSunToMoonTissuTrans.push({
-            frame: MEET_ANIMATION_LIGHT_ON_FRAME ,
-            value: 1.9,
-        });
-        keysSunToMoonTissuTrans.push({
-           frame: MEET_ANIMATION_LIGHT_ON_FRAME +1,
-           value: 1,
-       });      
-       keysSunToMoonTissuTrans.push({
-            frame: 100,
-            value: 1
-
-        });
-        animSunToMoonTissuTransparency.setKeys(keysSunToMoonTissuTrans);
-        
-        this._tissu.material.animations.push( animSunToMoonTissuTransparency);
-
-        // _lightMesh -> 
-        var animSunToMoonLightMesh = new BABYLON.Animation("animSunToMoonLightMesh", "emissiveColor",MEET_ANIMATION_SPEED,
-        BABYLON.Animation.ANIMATIONTYPE_COLOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-        var keysSunToMoonLightMesh = [];
-
-        keysSunToMoonLightMesh.push({
-            frame: 0,
-            value: BABYLON.Color3.Black,
-        });
-        keysSunToMoonLightMesh.push({
-            frame: MEET_ANIMATION_LIGHT_ON_FRAME,
-            value: BABYLON.Color3.Black
-        });
-        keysSunToMoonLightMesh.push({
-           frame: MEET_ANIMATION_LIGHT_ON_FRAME + 5 ,
-           value: MEET_LIGHT_COLOR_TISSU
-       });        
-       keysSunToMoonLightMesh.push({
-            frame: 100,
-            value: MEET_LIGHT_COLOR_TISSU
-
-        });
-        animSunToMoonLightMesh.setKeys(keysSunToMoonLightMesh);
-        
-
-        this._lightMesh.material.subMaterials[0].animations = [];
-        this._lightMesh.material.subMaterials[0].animations.push( animSunToMoonLightMesh);
-
-        this.scene.beginAnimation(this._tissu.material, 0, 0,true);
-        this.scene.beginAnimation(this._lightMesh.material.subMaterials[0], 0, 0,true);
-        this.scene.beginAnimation(this._mainLight, 0, 0,true);*/
-    }
-    _initialiseMoonToSunLights() : void
-    {
-    /*    // intensité de la veilleuse -> allume la veilleuse
-        var animationMoonToSunLight = new BABYLON.Animation("animationMoonToSunLight", "intensity", MEET_ANIMATION_SPEED,
-        BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-
-        var keysMoonToSunLight = [];
-
-        keysMoonToSunLight.push({
-            frame: 0,
-            value: MEET_LIGHT_INTENSITY *1.2,
-        });
-        keysMoonToSunLight.push({
-            frame: MEET_ANIMATION_LIGHT_ON_FRAME,
-            value: MEET_LIGHT_INTENSITY *0.9
-        });
-        keysMoonToSunLight.push({
-           frame: MEET_ANIMATION_LIGHT_ON_FRAME +5,
-           value: MEET_LIGHT_INTENSITY *0.5
-       });        
-       keysMoonToSunLight.push({
-            frame: 100,
-            value: 0
-
-        });
-        animationMoonToSunLight.setKeys(keysMoonToSunLight);
-
-        
-        this._mainLight.animations = [];
-        this._mainLight.animations.push( animationMoonToSunLight);
-
-        // tissus
-        // Light Tissu emissive color
-       var animMoonToSunTissu = new BABYLON.Animation("animMoonToSunTissu", "emissiveColor",MEET_ANIMATION_SPEED,
-        BABYLON.Animation.ANIMATIONTYPE_COLOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-        var keysMoonToSunTissu = [];
-
-        
-       keysMoonToSunTissu.push({
-            frame: 0,
-            value: MEET_LIGHT_COLOR_TISSU
-
-        });
-        keysMoonToSunTissu.push({
-           frame: MEET_ANIMATION_LIGHT_ON_FRAME ,
-           value: MEET_LIGHT_COLOR_TISSU
-       });
-          keysMoonToSunTissu.push({
-            frame: MEET_ANIMATION_LIGHT_ON_FRAME +5,
-            value: BABYLON.Color3.Black
-        });
-             keysMoonToSunTissu.push({
-            frame: 100,
-            value: BABYLON.Color3.Black,
-        });
-       
-        animMoonToSunTissu.setKeys(keysMoonToSunTissu);
-        this._tissu.material.animations = [];
-        this._tissu.material.animations.push( animMoonToSunTissu);
-
-        // transparence du tissu lorsque la lumière s'allume
-        var animMoonToSunTissuTransparency = new BABYLON.Animation("animMoonToSunTissuTransparency", "alpha", MEET_ANIMATION_SPEED,
-        BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-        var keysMoonToSunTissuTrans = [];
-
-       
-       keysMoonToSunTissuTrans.push({
-            frame: 0,
-            value: 1,
-
-        });
-        keysMoonToSunTissuTrans.push({
-           frame: MEET_ANIMATION_LIGHT_ON_FRAME ,
-           value: 1,
-       }); 
-        keysMoonToSunTissuTrans.push({
-            frame: MEET_ANIMATION_LIGHT_ON_FRAME + 1 ,
-            value: 1.9,
-        });
-             keysMoonToSunTissuTrans.push({
-            frame: 100,
-            value: 1.9,
-        });
-        
-        animMoonToSunTissuTransparency.setKeys(keysMoonToSunTissuTrans);
-
-        this._tissu.material.animations.push( animMoonToSunTissuTransparency);
-
-        // _lightMesh -> 
-        var animMoonToSunLightMesh = new BABYLON.Animation("animMoonToSunLightMesh", "emissiveColor",MEET_ANIMATION_SPEED,
-        BABYLON.Animation.ANIMATIONTYPE_COLOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-        var keysMoonToSunLightMesh = [];
-        keysMoonToSunLightMesh.push({
-            frame: 0,
-            value: MEET_LIGHT_COLOR_TISSU
-
-        });
-        keysMoonToSunLightMesh.push({
-            frame: MEET_ANIMATION_LIGHT_ON_FRAME  ,
-            value: MEET_LIGHT_COLOR_TISSU
-        });        
-        keysMoonToSunLightMesh.push({
-            frame: MEET_ANIMATION_LIGHT_ON_FRAME + 5,
-            value: BABYLON.Color3.Black
-        });
-        keysMoonToSunLightMesh.push({
-            frame: 100,
-            value: BABYLON.Color3.Black,
-        });
-       
-       
-        animMoonToSunLightMesh.setKeys(keysMoonToSunLightMesh);
-        
-
-        this._lightMesh.material.subMaterials[0].animations = [];
-        this._lightMesh.material.subMaterials[0].animations.push( animMoonToSunLightMesh);
-
-       this.scene.beginAnimation(this._tissu.material, 0, 0,true);
-        this.scene.beginAnimation(this._lightMesh.material.subMaterials[0], 0, 0,true);
-        this.scene.beginAnimation(this._mainLight, 0, 0,true);*/
-    }
+  
+    
 }

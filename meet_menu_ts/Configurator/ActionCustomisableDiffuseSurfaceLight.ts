@@ -56,8 +56,8 @@ class ActionCustomisableDiffuseSurfaceLight extends IInitialisable
 
     this._AnimatedSunToMoonLights(0, 0);
   }
-  ApplyCustomisationHandler(...tests): void {
-    let buttonName = (tests[0][1].target as BABYLON.GUI.Button).name;
+  ApplyCustomisationHandler(...args): void {
+    let buttonName = (args[0][1].target as BABYLON.GUI.Button).name;
 
     this._setCustomisable(buttonName);
 

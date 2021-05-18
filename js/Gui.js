@@ -23,6 +23,7 @@ Gui = function (_MeetScene) {
         subTissuMenu.push(new ActionButtonTextRadio(anchorMesh, pairNameTextureKey, pairNameTextureKey, "tissuRdoGrp", 
         subTissuRadioLinker,
         configurator._scene._groundCustomisable, 
+        null,
         pairNameTextureKey == configurator._scene._groundCustomisable._defaultKey));
 
     }); // rof each pair*/
@@ -62,6 +63,7 @@ Gui = function (_MeetScene) {
               "radioColorGrp " + iGroup,
               subMaterialRadioLinker,
               this._MeetScene.objectLoaded.customisableMaterial,
+              null,
               pairNameColorsKey == allowedColors._defaultKey
             )
           );
@@ -92,7 +94,7 @@ Gui = function (_MeetScene) {
     ),*/,
     new ActionButtonImgToUrl(
       anchorMesh,
-      "PUrl",
+      "Url",
       "./assets/images/gui_store.png",
       "https://www.etsy.com/fr/shop/SuboDesign?ref=seller-platform-mcnav"
     ),

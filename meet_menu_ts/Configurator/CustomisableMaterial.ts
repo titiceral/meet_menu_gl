@@ -47,9 +47,9 @@ class CustomisableMaterial extends IInitialisable implements ICustomisable
             });
     }
 
-    ApplyCustomisationHandler(...tests): void {
+    ApplyCustomisationHandler(...args): void {
       
-        let buttonName = (tests[1].target as BABYLON.GUI.Button).name;
+        let buttonName = (args[1].target as BABYLON.GUI.Button).name;
         this._allowedColors.forEach( setColors => 
         {
             if( setColors._colorNames.has(buttonName ) )

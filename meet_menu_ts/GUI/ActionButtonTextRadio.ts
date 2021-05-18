@@ -14,8 +14,8 @@ class ActionButtonTextRadio extends IButton implements IRadioBtn {
   OnProgress(progressPercentage: number): void {
     throw new Error("Method not implemented.");
   }
-  OnClicked(...tests): void {
-    this.configurator.ApplyCustomisationHandler(tests);
+  OnClicked(...args): void {
+    this.configurator.ApplyCustomisationHandler(args);
     if (this.eventOnClicked != null) {
       this.eventOnClicked;
     }

@@ -1,3 +1,3 @@
 abstract class ICustomisable {
-  abstract ApplyCustomisationHandler(...tests): void;
+  abstract ApplyCustomisationHandler(...args): void;
 }

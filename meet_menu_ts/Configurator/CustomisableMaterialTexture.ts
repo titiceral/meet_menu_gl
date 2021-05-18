@@ -10,8 +10,8 @@ class CustomisableMaterialTexture extends IInitialisable
   }
 
   //#region  Customisable
-  ApplyCustomisationHandler(...tests): void {
-    let buttonName = (tests[1].target as BABYLON.GUI.Button).name;
+  ApplyCustomisationHandler(...args): void {
+    let buttonName = (args[1].target as BABYLON.GUI.Button).name;
     this._setDiffuseFromKey(buttonName);
   }
   ApplyDefault(): void {
