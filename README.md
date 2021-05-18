@@ -16,4 +16,5 @@ This repository shows sample of WebGL UI menu made with TypeScript and BabylonJs
 
 Simple Sphere, the 3D Menu allows to switch ground material Texture, and Sphere specular and color effect.
 
-- [![Meet BabylonJS 3D menu](https://github.com/titiceral/meet_menu_gl/tree/master/docs/demo/meet_babylon_001.mp4)]
+https://user-images.githubusercontent.com/57478919/118615941-87cf1a00-b7c1-11eb-8905-4e9960088a15.mp4
+
